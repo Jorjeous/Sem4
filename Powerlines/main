@@ -1,0 +1,158 @@
+// SMFL_TEST2.cpp : This file contains the 'main' function. Program execution begins and ends there.
+
+#include "pch.h"
+#include <iostream>
+#include <stdio.h>
+#include "Vector2.h"
+#include <algorithm>
+#include "Electrolines.h"
+#include <SFML\Graphics.hpp>
+#define LINES_NUMBER 4
+#define SPEED 600
+const int LENGTH = 600;
+
+
+int main() {
+
+	sf::RenderWindow window(sf::VideoMode(1300, 1300), "My window");
+	window.setFramerateLimit(SPEED);
+
+	ElectricField E;
+	Charge Q;
+	
+
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event)) 
+		{
+			switch (event.type) 
+			{
+			case sf::Event::Closed:
+				window.close();
+				break;
+
+			case sf::Event::MouseButtonReleased:
+				if (event.mouseButton.button == sf::Mouse::Right) 
+				{
+					Charge q;
+					q.value = -1;
+					q.position = Vector2(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+					E.charges.push_back(q);
+				}
+				if (event.mouseButton.button == sf::Mouse::Left) 
+				{
+					Charge q;
+					q.value = 1;
+					q.position = Vector2(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+					E.charges.push_back(q);
+				}
+				break;
+			case sf::Event::KeyPressed:
+				if (event.key.code == sf::Keyboard::Q)
+				{
+					Charge q1;
+					q1.value = 1;
+					q1.position = Vector2(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+					E.charges.push_back(q1);
+					
+					Charge q2;
+					q2.value = -1;
+					q2.position = Vector2(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+					E.charges.push_back(q2);
+				
+					//point.setPosition((int)sf::Mouse::getPosition().x, (int) sf::Mouse::getPosition().y);
+					E.kucha.push_back(E.charges.size());
+					E.kucha.push_back(E.charges.size()-1);
+
+
+				}
+				break;
+				/*if (event.key.code == sf::Keyboard::E)
+				{
+					Charge q;
+					q.value = 0;
+					q.position = Vector2(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
+					E.charges.push_back(q);
+				}*/
+
+			default:
+				break;
+			}
+
+		}
+
+
+		window.clear(sf::Color::Black);
+
+		for (auto i = 0; i < E.charges.size(); ++i) 
+		{
+			Charge q[LINES_NUMBER];
+			for (auto j = 0; j < LINES_NUMBER; ++j)
+			{
+				q[j] = E.charges[i];
+				q[j].position += Vector2(((float)2) / 1 * cos((float)j / LINES_NUMBER * 3.14 * 2), (2) / 2 * sin((float)j / LINES_NUMBER * 3.14 * 2));
+			}
+
+			for (int k = 0; k < LENGTH; ++k)
+			{
+				Vector2 Tence[LINES_NUMBER];
+
+				for (auto j = 0; j < LINES_NUMBER; ++j)
+				{
+					Tence[j] = E.FindForce(q[j]).norm();
+
+					sf::Vertex line[] = 
+					{
+						sf::Vertex(sf::Vector2f(q[j].position.x, q[j].position.y)),
+						sf::Vertex(sf::Vector2f(q[j].position.x + Tence[j].x, q[j].position.y + Tence[j].y))
+					};
+					q[j].position += Tence[j];
+					window.draw(line, 2, sf::Lines);
+				}
+			}
+
+			auto p = std::find(E.kucha.begin(), E.kucha.end(), i);
+
+
+
+			if (E.charges[i].value > 0) 
+			{
+				
+				sf::CircleShape circle(20.f);
+				circle.setPosition(E.charges[i].position.x-20, E.charges[i].position.y-20);
+
+				if (p != E.kucha.end())
+				{
+					circle.setFillColor(sf::Color::Yellow);
+				}
+				else
+				{
+					circle.setFillColor(sf::Color::Red);
+				}		
+				window.draw(circle);
+			}
+
+			if (E.charges[i].value < 0)
+			{
+				sf::CircleShape circle(20.f);
+				circle.setPosition(E.charges[i].position.x-20, E.charges[i].position.y-20);
+				circle.setFillColor(sf::Color::Blue);
+				window.draw(circle);
+				if (p != E.kucha.end())
+				{
+					circle.setFillColor(sf::Color::Yellow);
+				}
+				else
+				{
+					circle.setFillColor(sf::Color::Blue);
+				}
+				window.draw(circle);			
+			}
+			
+			
+		}
+		window.display();
+	}
+	return 0;
+}
