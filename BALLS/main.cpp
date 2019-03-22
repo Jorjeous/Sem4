@@ -1,7 +1,6 @@
 
 #include <SFML\Graphics.hpp>
 #include "Vector2.h"
-#include "Material.h"
 #include <vector>
 
 
