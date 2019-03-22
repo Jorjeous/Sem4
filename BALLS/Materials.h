@@ -4,8 +4,7 @@
 #include <iostream>
 
 
-class MaterialPoint
-{
+class MaterialPoint{
 public:
 	double mass;
 	Vector2 position;
@@ -18,7 +17,7 @@ public:
 	Vector2 GetImpulse() const;
 };
 
-class Ball : public MaterialPoint {
+class Ball : public MaterialPoint{
 public:
 	float radius;
 	int type;
